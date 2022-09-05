@@ -11,6 +11,6 @@ public:
     virtual void render();
     virtual void update();
 
-private:
+protected:
     SDL_Renderer* renderer_ = nullptr;
 };

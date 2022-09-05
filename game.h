@@ -24,6 +24,10 @@ private:
 
     Game();
 
+    void loadAssets();
+
+    void createObjects();
+
     void log(const std::string& message);
 
     void manageEvents(const SDL_Event& event);

@@ -1,4 +1,7 @@
 #include "game.h"
+#include "background.h"
+
+#include <vector>
 #include <iostream>
 
 Game* Game::instance = nullptr;
@@ -6,7 +9,7 @@ Game* Game::instance = nullptr;
 Game* Game::get() 
 {
     if (!instance)
-        instance = new Game;
+        new Game;
     return instance;
 }
 
@@ -18,9 +21,14 @@ Game::Game()
     if (SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, &window_, &renderer_) < 0)
         log("Failed to create window!");
 
+    instance = this;
+
     SDL_SetWindowTitle(window_, "Flappy Bird");
 
     textures_ = TextureManager::get();
+
+    loadAssets();
+    createObjects();
 }
 
 Game::~Game()
@@ -55,6 +63,7 @@ void Game::run()
 
         update();
 
+        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0xff);
         SDL_RenderClear(renderer_);
         render();
         SDL_RenderPresent(renderer_);
@@ -86,4 +95,30 @@ void Game::render()
 GameObject* Game::getObject(const std::string& tag)
 {
     return objects_.get(tag);
+}
+
+void Game::loadAssets()
+{
+    /* Loading sprites */
+
+    std::vector<std::string> sprites = {
+        "background-day", "background-night", "base",
+        "bluebird-downflap", "bluebird-upflap", "bluebird-midflap",
+        "redbird-downflap", "redbird-upflap", "redbird-midflap",
+        "yellowbird-downflap", "yellowbird-upflap", "yellowbird-midflap",
+        "pipe-green", "pipe-red", "message", "gameover"
+    };
+    for (int i = 0; i < 10; ++i)
+        sprites.emplace_back(std::to_string(i));
+
+    for (auto sprite : sprites)
+        if (!textures_->load("./Assets/sprites/" + sprite + ".png", sprite))
+            exit(1);
+
+    /* Loading audios */
+}
+
+void Game::createObjects()
+{
+    objects_.push(new Background, "background");
 }

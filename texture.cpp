@@ -8,7 +8,7 @@ TextureManager* TextureManager::instance = nullptr;
 
 TextureManager::TextureManager()
 {
-    renderer_ = Game::get()->getRenderer();
+    instance = this;
 }
 
 TextureManager::~TextureManager()
@@ -23,7 +23,7 @@ TextureManager::~TextureManager()
 TextureManager* TextureManager::get()
 {
     if (!instance)
-        instance = new TextureManager;
+        new TextureManager;
     return instance;
 }
 
@@ -33,7 +33,7 @@ SDL_Texture* TextureManager::load(const std::string& path, const std::string& ta
     if (texture)
         return texture;
 
-    texture = IMG_LoadTexture(renderer_, path.c_str());
+    texture = IMG_LoadTexture(Game::get()->getRenderer(), path.c_str());
     if (!texture)
         std::cerr << "Failed to load " << path << std::endl;
         
