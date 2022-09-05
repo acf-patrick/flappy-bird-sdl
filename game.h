@@ -3,6 +3,9 @@
 #include <string>
 #include <SDL2/SDL.h>
 
+#include "group.h"
+#include "texture.h"
+
 class Game 
 {
 public:
@@ -14,12 +17,23 @@ public:
 
     SDL_Renderer* getRenderer();
 
+    GameObject* getObject(const std::string& tag);
+
 private:
     static Game* instance;
 
     Game();
 
     void log(const std::string& message);
+
+    void manageEvents(const SDL_Event& event);
+
+    void update();
+
+    void render();
+
+private:
+    bool running = true;
 
     /* window size */
 
@@ -28,4 +42,8 @@ private:
 
     SDL_Window* window_;
     SDL_Renderer* renderer_;
+
+    TextureManager* textures_;
+
+    Group objects_;
 };

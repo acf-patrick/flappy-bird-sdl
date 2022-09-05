@@ -19,10 +19,14 @@ Game::Game()
         log("Failed to create window!");
 
     SDL_SetWindowTitle(window_, "Flappy Bird");
+
+    textures_ = TextureManager::get();
 }
 
 Game::~Game()
 {
+    delete textures_;
+
     SDL_DestroyRenderer(renderer_);
     SDL_DestroyWindow(window_);
 
@@ -44,12 +48,42 @@ void Game::log(const std::string& message)
 void Game::run()
 {
     SDL_Event event;
-    while (true) 
+    while (running) 
     {
-        SDL_PollEvent(&event);
-        if (event.type == SDL_QUIT)
-            break;
+        while (SDL_PollEvent(&event))
+            manageEvents(event);
+
+        update();
+
         SDL_RenderClear(renderer_);
+        render();
         SDL_RenderPresent(renderer_);
     }
+}
+
+void Game::manageEvents(const SDL_Event& event)
+{
+    switch (event.type)
+    {
+    case SDL_QUIT:
+        running = false;
+        break;
+
+    default : ;
+    }
+}
+
+void Game::update()
+{
+    objects_.update();
+}
+
+void Game::render()
+{
+    objects_.render();
+}
+
+GameObject* Game::getObject(const std::string& tag)
+{
+    return objects_.get(tag);
 }

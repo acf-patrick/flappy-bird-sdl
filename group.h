@@ -13,6 +13,8 @@ public:
 
     GameObject* remove(const std::string& tag);
 
+    GameObject* get(const std::string& tag);
+
     void push(GameObject* object, const std::string& tag);
 
     void update();

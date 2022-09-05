@@ -36,3 +36,8 @@ void Group::render()
     for (auto& [tag, object] : objects_)
         objects_[tag]->render();
 }
+
+GameObject* Group::get(const std::string& tag)
+{
+    return objects_[tag];
+}
