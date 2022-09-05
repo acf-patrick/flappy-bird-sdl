@@ -1,4 +1,5 @@
 #include "game.h"
+#include "base.h"
 #include "background.h"
 
 #include <vector>
@@ -56,6 +57,7 @@ void Game::log(const std::string& message)
 void Game::run()
 {
     SDL_Event event;
+
     while (running) 
     {
         while (SDL_PollEvent(&event))
@@ -121,4 +123,10 @@ void Game::loadAssets()
 void Game::createObjects()
 {
     objects_.push(new Background, "background");
+    objects_.push(new Base, "base");
+}
+
+SDL_Point Game::getWindowSize()
+{
+    return { width, height };
 }

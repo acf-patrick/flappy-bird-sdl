@@ -42,5 +42,10 @@ SDL_Texture* TextureManager::load(const std::string& path, const std::string& ta
 
 SDL_Texture* TextureManager::retrieve(const std::string& tag)
 {
+    if (textures_.find(tag) == textures_.end())
+    {
+        std::cerr << tag << " : texture not loaded." << std::endl;
+        return nullptr;
+    }
     return textures_[tag];
 }

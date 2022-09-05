@@ -19,6 +19,8 @@ public:
 
     GameObject* getObject(const std::string& tag);
 
+    SDL_Point getWindowSize();
+
 private:
     static Game* instance;
 
