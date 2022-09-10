@@ -1,8 +1,10 @@
 #include "game.h"
 #include "base.h"
+#include "pipe.h"
 #include "background.h"
 
 #include <vector>
+#include <cstdlib>
 #include <iostream>
 
 Game* Game::instance = nullptr;
@@ -16,10 +18,12 @@ Game* Game::get()
 
 Game::Game()
 {
+    srand(time(0));
+
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         log("Failed to initialize subsystems.");
 
-    if (SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, &window_, &renderer_) < 0)
+    if (SDL_CreateWindowAndRenderer(width_, height_, SDL_WINDOW_SHOWN, &window_, &renderer_) < 0)
         log("Failed to create window!");
 
     instance = this;
@@ -60,8 +64,8 @@ void Game::run()
 
     while (running) 
     {
-        while (SDL_PollEvent(&event))
-            manageEvents(event);
+        SDL_PollEvent(&event);
+        manageEvents(event);
 
         update();
 
@@ -123,10 +127,11 @@ void Game::loadAssets()
 void Game::createObjects()
 {
     objects_.push(new Background, "background");
+    objects_.push(new Pipe("red"), "pipe");
     objects_.push(new Base, "base");
 }
 
 SDL_Point Game::getWindowSize()
 {
-    return { width, height };
+    return { width_, height_ };
 }

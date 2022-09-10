@@ -1,0 +1,11 @@
+/* Bird::Bird(const std::string& color) :
+    color_(color)
+{
+    auto texture = TextureManager::get();
+
+    std::vector<std::string> states = {
+        "downflap", "midflap", "upflap"
+    };
+    for (int i=0; i < 3; ++i)
+        textures_[i] = texture->retrieve("./Assets/sprites/" + color + "bird-" + states[i] + ".png");
+} */

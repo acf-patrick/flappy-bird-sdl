@@ -6,6 +6,7 @@ Base::Base()
 {
     auto texture = TextureManager::get();
     texture_ = texture->retrieve("base");
+    SDL_QueryTexture(texture_, NULL, NULL, &width_, &height_);
 }
 
 void Base::update()

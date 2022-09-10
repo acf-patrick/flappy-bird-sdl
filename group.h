@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 #include <string>
 #include <SDL2/SDL.h>
 
@@ -24,4 +25,5 @@ public:
 
 private:
     std::map<std::string, GameObject*> objects_;
+    std::vector<std::string> orderedTags_;
 };

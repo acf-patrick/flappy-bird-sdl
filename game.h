@@ -43,8 +43,8 @@ private:
 
     /* window size */
 
-    int width = 288;
-    int height = 512;
+    int width_ = 288;
+    int height_ = 512;
 
     SDL_Window* window_;
     SDL_Renderer* renderer_;

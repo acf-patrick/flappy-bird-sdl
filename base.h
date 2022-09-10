@@ -15,6 +15,6 @@ public:
 private:
     SDL_Texture* texture_ = nullptr;
     float x_ = 0;
-    int width_ = 336;
-    int height_ = 112;
+    int width_;
+    int height_;
 };
