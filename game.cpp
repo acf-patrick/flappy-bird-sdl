@@ -1,6 +1,7 @@
 #include "game.h"
 #include "base.h"
 #include "pipe.h"
+#include "texture.h"
 #include "background.h"
 
 #include <vector>
@@ -90,17 +91,47 @@ void Game::manageEvents(const SDL_Event& event)
 
 void Game::update()
 {
-    objects_.update();
+    for (auto object : objects_)
+        object->update();
+    for (auto pipe : pipes_)
+        pipe->update();
+    createPipes();
 }
 
 void Game::render()
 {
-    objects_.render();
+    background_->render();
+    // draw bird
+    for (auto pipe : pipes_)
+        pipe->render();
+    base_->render();
 }
 
-GameObject* Game::getObject(const std::string& tag)
+void Game::createPipes()
 {
-    return objects_.get(tag);
+    auto create = [&]() {
+        auto pipe = new Pipe(background_->isDay() ? "green" : "red");
+        pipes_.emplace_back(pipe);
+    };
+
+    if (pipes_.empty())
+    {
+        create();
+        return;
+    }
+
+    // Create new pipe
+    auto tail = pipes_.back();
+    if (tail->getRight() < width_ - pipeSpace_)
+        create();
+
+    // Remove pipe
+    auto head = pipes_.front();
+    if (head->isOut())
+    {
+        pipes_.pop_front();
+        delete head;
+    }
 }
 
 void Game::loadAssets()
@@ -126,12 +157,15 @@ void Game::loadAssets()
 
 void Game::createObjects()
 {
-    objects_.push(new Background, "background");
-    objects_.push(new Pipe("red"), "pipe");
-    objects_.push(new Base, "base");
+    background_ = new Background;
+    objects_.emplace_back(background_);
+
+    base_ = new Base;
+    objects_.emplace_back(base_);
 }
 
 SDL_Point Game::getWindowSize()
 {
     return { width_, height_ };
 }
+

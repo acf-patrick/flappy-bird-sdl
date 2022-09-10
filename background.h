@@ -7,6 +7,8 @@ class Background : public GameObject
 public:
     Background();
 
+    bool isDay() const;
+
     void update() override;
     void render() override;
 

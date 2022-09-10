@@ -17,6 +17,8 @@ public:
     bool isOut() const;
     bool collide(const SDL_Rect& rect);
 
+    int getRight() const;
+
 private:
     int gap_ = 100;
     float speed_ = 0.05;

@@ -1,6 +1,7 @@
 /* Bird::Bird(const std::string& color) :
     color_(color)
 {
+    layer_ = BIRD;
     auto texture = TextureManager::get();
 
     std::vector<std::string> states = {

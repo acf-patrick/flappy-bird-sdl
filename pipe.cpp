@@ -38,7 +38,12 @@ void Pipe::update()
 
 bool Pipe::isOut() const
 {
-    return x_ + tSize_.x < 0;
+    return getRight() < 0;
+}
+
+int Pipe::getRight() const
+{
+    return x_ + tSize_.x;
 }
 
 bool Pipe::collide(const SDL_Rect& rect)

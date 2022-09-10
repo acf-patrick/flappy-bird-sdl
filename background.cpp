@@ -9,6 +9,11 @@ Background::Background()
     lastTick_ = SDL_GetTicks();
 }
 
+bool Background::isDay() const
+{
+    return day_;
+}
+
 void Background::update()
 {
     auto currTick = SDL_GetTicks();

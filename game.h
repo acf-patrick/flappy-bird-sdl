@@ -1,10 +1,15 @@
 #pragma once
 
+#include <deque>
+#include <vector>
 #include <string>
 #include <SDL2/SDL.h>
 
-#include "group.h"
-#include "texture.h"
+class Pipe;
+class Base;
+class GameObject;
+class Background;
+class TextureManager;
 
 class Game 
 {
@@ -16,8 +21,6 @@ public:
     void run();
 
     SDL_Renderer* getRenderer();
-
-    GameObject* getObject(const std::string& tag);
 
     SDL_Point getWindowSize();
 
@@ -38,8 +41,18 @@ private:
 
     void render();
 
+    void createPipes();
+
 private:
     bool running = true;
+
+    Background* background_;
+    Base* base_;
+    std::deque<Pipe*> pipes_;
+
+    std::vector<GameObject*> objects_;
+
+    int pipeSpace_ = 80;
 
     /* window size */
 
@@ -50,6 +63,4 @@ private:
     SDL_Renderer* renderer_;
 
     TextureManager* textures_;
-
-    Group objects_;
 };
