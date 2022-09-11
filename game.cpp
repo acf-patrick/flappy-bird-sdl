@@ -66,8 +66,8 @@ void Game::run()
 
     while (running) 
     {
-        SDL_PollEvent(&event);
-        manageEvents(event);
+        while (SDL_PollEvent(&event))
+            manageEvents(event);
 
         update();
 
@@ -85,7 +85,9 @@ void Game::manageEvents(const SDL_Event& event)
     case SDL_QUIT:
         running = false;
         break;
-
+    case SDL_MOUSEBUTTONUP:
+        bird_->step();
+        break;
     default : ;
     }
 }

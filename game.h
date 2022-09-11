@@ -54,7 +54,7 @@ private:
 
     std::vector<GameObject*> objects_;
 
-    int pipeSpace_ = 80;
+    int pipeSpace_ = 100;
 
     /* window size */
 

@@ -20,9 +20,14 @@ public:
     int getRight() const;
 
 private:
+    float deltaTime_;
+    Uint32 lastTick_;
+
     int gap_ = 100;
-    float speed_ = 0.05;
+    float speed_ = -60.0;
+
     float x_, y_;
+
     SDL_Point tSize_;
     SDL_Texture* texture_;
 };

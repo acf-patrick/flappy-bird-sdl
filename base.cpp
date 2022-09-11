@@ -11,7 +11,7 @@ Base::Base()
 
 void Base::update()
 {
-    x_ -= 0.1;
+    x_ -= 0.05;
     if (x_ <= -width_)
         x_ = 0;
 }

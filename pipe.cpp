@@ -20,6 +20,8 @@ Pipe::Pipe(const std::string& color)
     SDL_QueryTexture(texture_, NULL, NULL, &tSize_.x, &tSize_.y);
     x_ = wSize.x;
     y_ = randint(gap_ + 20, wSize.y - 112 - 20);
+
+    lastTick_ = SDL_GetTicks();
 }
 
 void Pipe::render()
@@ -33,7 +35,11 @@ void Pipe::render()
 
 void Pipe::update()
 {
-    x_ -= speed_;
+    auto curr = SDL_GetTicks();
+    deltaTime_ = (curr - lastTick_) / 1000.0;
+    lastTick_ = curr;
+
+    x_ += speed_ * deltaTime_;
 }
 
 bool Pipe::isOut() const
