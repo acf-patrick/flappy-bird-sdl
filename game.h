@@ -7,6 +7,7 @@
 
 class Pipe;
 class Base;
+class Bird;
 class GameObject;
 class Background;
 class TextureManager;
@@ -48,6 +49,7 @@ private:
 
     Background* background_;
     Base* base_;
+    Bird* bird_;
     std::deque<Pipe*> pipes_;
 
     std::vector<GameObject*> objects_;

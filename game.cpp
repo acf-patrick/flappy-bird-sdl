@@ -1,3 +1,4 @@
+#include "bird.h"
 #include "game.h"
 #include "base.h"
 #include "pipe.h"
@@ -101,7 +102,7 @@ void Game::update()
 void Game::render()
 {
     background_->render();
-    // draw bird
+    bird_->render();
     for (auto pipe : pipes_)
         pipe->render();
     base_->render();
@@ -159,7 +160,10 @@ void Game::createObjects()
 {
     background_ = new Background;
     objects_.emplace_back(background_);
-
+    
+    bird_ = new Bird("red");
+    objects_.emplace_back(bird_);
+    
     base_ = new Base;
     objects_.emplace_back(base_);
 }
