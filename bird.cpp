@@ -1,6 +1,9 @@
 #include "bird.h"
 #include "texture.h"
+
+#include <cmath>
 #include <iostream>
+
 Bird::Bird(const std::string& color)
 {
     setColor(color);
@@ -22,20 +25,30 @@ void Bird::update()
         lastTick_ = curr;
     }
 
-    // Update physics
-    
-    if (angle_ < 90)
+    if (idle_)
+        y_ = startY_ + 20 * std::sin(curr / 500.0);
+    else
     {
-        angularVel_ += angularAcc_ * deltaTime_;
-        angle_ += angularVel_ * deltaTime_;
-    }
-    if (angle_ < -45)
-        angle_ = -45;
+        // Update physics
+        
+        if (angle_ < 90)
+        {
+            angularVel_ += angularAcc_ * deltaTime_;
+            angle_ += angularVel_ * deltaTime_;
+        }
+        if (angle_ < -45)
+            angle_ = -45;
 
-    velocityY_ += gravityScale_ * 9.8 * deltaTime_;
-    y_ += velocityY_ * deltaTime_;
-    if (y_ < 0)
-        y_ = 0.0;
+        velocityY_ += gravityScale_ * 9.8 * deltaTime_;
+        y_ += velocityY_ * deltaTime_;
+        if (y_ < 0)
+            y_ = 0.0;
+    }
+}
+
+void Bird::toggleState()
+{
+    idle_ = !idle_;
 }
 
 void Bird::step()
@@ -45,12 +58,14 @@ void Bird::step()
     velocityY_ = -200.0;
 }
 
+SDL_Rect Bird::getRect() const
+{
+    return { x_, int(y_), 34, 24 };
+}
+
 void Bird::render()
 {
-    SDL_Rect dest = {
-        x_, (int)y_,
-        34, 24
-    };
+    SDL_Rect dest = getRect();
     SDL_RenderCopyEx(renderer_, textures_[currFrame_], NULL, &dest, angle_, NULL, SDL_FLIP_NONE);
 }
 

@@ -28,7 +28,6 @@ void Pipe::render()
 {
     SDL_Rect dest { int(x_), int(y_), tSize_.x, tSize_.y };
     SDL_RenderCopy(renderer_, texture_, NULL, &dest);
-
     dest = { int(x_), int(y_ - gap_ - tSize_.y), tSize_.x, tSize_.y };
     SDL_RenderCopyEx(renderer_, texture_, NULL, &dest, 180, NULL, SDL_FLIP_NONE);
 }
@@ -54,9 +53,11 @@ int Pipe::getRight() const
 
 bool Pipe::collide(const SDL_Rect& rect)
 {
+    int diff = 2;
     SDL_Rect rects[2] = {
-        { int(x_), int(y_ - gap_ - tSize_.y), tSize_.x, tSize_.y },
-        { int(x_), int(y_), tSize_.x, tSize_.y }
+        { int(x_ + diff), int(y_ - gap_ - tSize_.y), tSize_.x - diff, tSize_.y - diff },
+        { int(x_ + diff), int(y_ + diff), tSize_.x - diff, tSize_.y - diff }
     };
-    return SDL_IntersectRect(&rects[0], &rect, NULL) || SDL_IntersectRect(&rects[1], &rect, NULL);
+    SDL_Rect out;
+    return SDL_IntersectRect(&rects[0], &rect, &out) || SDL_IntersectRect(&rects[1], &rect, &out);
 }

@@ -7,7 +7,9 @@
 
 #include <vector>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
+#include <algorithm>
 
 Game* Game::instance = nullptr;
 
@@ -27,6 +29,7 @@ Game::Game()
 
     if (SDL_CreateWindowAndRenderer(width_, height_, SDL_WINDOW_SHOWN, &window_, &renderer_) < 0)
         log("Failed to create window!");
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
 
     instance = this;
 
@@ -44,6 +47,9 @@ Game::~Game()
 
     SDL_DestroyRenderer(renderer_);
     SDL_DestroyWindow(window_);
+
+    std::ofstream file ("./score", std::ios::binary);
+    file << maxScore_;
 
     instance = nullptr;
 }
@@ -64,7 +70,7 @@ void Game::run()
 {
     SDL_Event event;
 
-    while (running) 
+    while (running_) 
     {
         while (SDL_PollEvent(&event))
             manageEvents(event);
@@ -83,10 +89,15 @@ void Game::manageEvents(const SDL_Event& event)
     switch (event.type)
     {
     case SDL_QUIT:
-        running = false;
+        running_ = false;
         break;
     case SDL_MOUSEBUTTONUP:
-        bird_->step();
+        if (state_ == PLAYING)
+            bird_->step();
+        else
+        {
+
+        }
         break;
     default : ;
     }
@@ -94,20 +105,100 @@ void Game::manageEvents(const SDL_Event& event)
 
 void Game::update()
 {
-    for (auto object : objects_)
-        object->update();
-    for (auto pipe : pipes_)
-        pipe->update();
-    createPipes();
+    if (state_ == BEGIN)
+    {
+        bird_->update();
+        base_->update();
+    }
+    else if (state_ == PLAYING)
+    {
+        if (dead_)
+        {
+            if (!hasHitGround())
+                bird_->update();
+            return;
+        }
+
+        for (auto object : objects_)
+            object->update();
+
+        for (auto pipe : pipes_)
+            pipe->update();
+
+        if (!pipes_.empty())
+        {
+            auto head = pipes_.front();
+            auto pipePos = head->getRight();
+            auto birdRect = bird_->getRect();
+            if (pipePos < birdRect.x + birdRect.w && lastPipeHead_ != head)
+            {
+                lastPipeHead_ = head;
+                score();
+            }
+
+            const int baseHeight = 112;
+            if (head->collide(birdRect) || hasHitGround())
+                dead();
+        }
+        
+        createPipes();
+    }
+}
+
+bool Game::hasHitGround()
+{
+    const int baseHeight = 112;
+    auto bird = bird_->getRect();
+    return bird.y + bird.h >= height_ - baseHeight;
+}
+
+void Game::dead()
+{
+    dead_ = true;
+    if (score_ > maxScore_)
+        maxScore_ = score_;
+}
+
+void Game::score()
+{
+    score_++;
 }
 
 void Game::render()
 {
+    // order matters
+
     background_->render();
+
+    if (state_ != BEGIN)
+        for (auto pipe : pipes_)
+            pipe->render();
+    
     bird_->render();
-    for (auto pipe : pipes_)
-        pipe->render();
     base_->render();
+
+    auto renderTexture = [&](const std::string& t) {
+        SDL_Point tSize;
+        auto texture = textures_->retrieve(t);
+        SDL_QueryTexture(texture, NULL, NULL, &tSize.x, &tSize.y);
+
+        SDL_Rect dest = {
+            (width_ - tSize.x) / 2, (height_ - tSize.y) / 2,
+            tSize.x, tSize.y
+        };
+        SDL_RenderCopy(renderer_, texture, NULL, &dest);
+    };
+
+    if (state_ != PLAYING)
+    {
+        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 100);
+        SDL_RenderFillRect(renderer_, NULL);
+
+        if (state_ == BEGIN)
+            renderTexture("message");
+        else if (state_ == GAMEOVER)
+            renderTexture("gameover");
+    }
 }
 
 void Game::createPipes()
@@ -135,6 +226,15 @@ void Game::createPipes()
         pipes_.pop_front();
         delete head;
     }
+}
+
+void Game::loadScore()
+{
+    std::ifstream file("./score", std::ios::binary);
+    if (file)
+        file >> maxScore_;
+    else
+        std::cerr << "Failed to load score!" << std::endl;
 }
 
 void Game::loadAssets()

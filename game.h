@@ -32,6 +32,8 @@ private:
 
     void loadAssets();
 
+    void loadScore();
+
     void createObjects();
 
     void log(const std::string& message);
@@ -42,10 +44,30 @@ private:
 
     void render();
 
+    void dead();
+
+    void score();
+
     void createPipes();
 
+    bool hasHitGround();
+
 private:
-    bool running = true;
+    enum State
+    {
+        BEGIN,
+        PLAYING,
+        GAMEOVER
+    };
+    State state_ = BEGIN;
+
+    bool running_ = true;
+
+    bool dead_ = false;
+
+    Pipe* lastPipeHead_ = nullptr;
+    int score_ = 0;
+    int maxScore_ = 0;
 
     Background* background_;
     Base* base_;
