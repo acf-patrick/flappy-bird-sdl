@@ -21,6 +21,8 @@ public:
 
     void toggleState();
 
+    void reset();
+
 private:
     float animationSpeed_ = 6.0;
     Uint32 lastTick_;
@@ -33,15 +35,16 @@ private:
 
     int x_ = 50;
 
-    float velocityY_ = 0.0;
+    float velocityY_;
+
     int startY_ = 200;
-    float y_ = 200;
+    float y_;
 
     float gravityScale_ = 40.0;
     
-    float angularAcc_ = 100.0;
-    float angularVel_ = 0.0;
-    float angle_ = 0.0;
+    float angularAcc_;
+    float angularVel_;
+    float angle_;
 
     SDL_Texture* textures_[3];
 };

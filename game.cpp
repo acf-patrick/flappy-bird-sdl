@@ -93,10 +93,21 @@ void Game::manageEvents(const SDL_Event& event)
         break;
     case SDL_MOUSEBUTTONUP:
         if (state_ == PLAYING)
-            bird_->step();
-        else
         {
-
+            if (!dead_)
+                bird_->step();
+        }
+        else if (state_ == GAMEOVER)
+        {
+            state_ = BEGIN;
+            bird_->reset();
+        }
+        else if (state_ == BEGIN)
+        {
+            state_ = PLAYING;
+            dead_ = false;
+            resetPipes();
+            bird_->toggleState();
         }
         break;
     default : ;
@@ -116,6 +127,8 @@ void Game::update()
         {
             if (!hasHitGround())
                 bird_->update();
+            else
+                state_ = GAMEOVER;
             return;
         }
 
@@ -143,6 +156,16 @@ void Game::update()
         
         createPipes();
     }
+}
+
+void Game::resetPipes()
+{
+    if (pipes_.empty())
+        return;
+
+    for (auto pipe : pipes_)
+        delete pipe;
+    pipes_.clear();
 }
 
 bool Game::hasHitGround()
@@ -191,14 +214,19 @@ void Game::render()
 
     if (state_ != PLAYING)
     {
-        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 100);
-        SDL_RenderFillRect(renderer_, NULL);
+        darkenScreen();
 
         if (state_ == BEGIN)
             renderTexture("message");
         else if (state_ == GAMEOVER)
             renderTexture("gameover");
     }
+}
+
+void Game::darkenScreen()
+{
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 100);
+    SDL_RenderFillRect(renderer_, NULL);
 }
 
 void Game::createPipes()

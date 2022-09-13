@@ -7,7 +7,19 @@
 Bird::Bird(const std::string& color)
 {
     setColor(color);
+    reset();
     lastUpdateTick_ = SDL_GetTicks();
+}
+
+void Bird::reset()
+{
+    velocityY_= angularVel_ = 0.0;
+    y_ = startY_;
+
+    angularAcc_ = 100.0;
+    angle_ = 0.0;
+
+    idle_ = true;
 }
 
 void Bird::update()

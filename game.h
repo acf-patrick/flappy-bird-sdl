@@ -50,7 +50,11 @@ private:
 
     void createPipes();
 
+    void resetPipes();
+
     bool hasHitGround();
+
+    void darkenScreen();
 
 private:
     enum State
