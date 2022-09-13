@@ -2,6 +2,7 @@
 #include "game.h"
 #include "base.h"
 #include "pipe.h"
+#include "audio.h"
 #include "texture.h"
 #include "background.h"
 
@@ -36,6 +37,7 @@ Game::Game()
     SDL_SetWindowTitle(window_, "Flappy Bird");
 
     textures_ = TextureManager::get();
+    audios_ = AudioManager::get();
 
     loadAssets();
     createObjects();
@@ -43,6 +45,7 @@ Game::Game()
 
 Game::~Game()
 {
+    delete audios_;
     delete textures_;
 
     SDL_DestroyRenderer(renderer_);
@@ -50,6 +53,8 @@ Game::~Game()
 
     std::ofstream file ("./score", std::ios::binary);
     file << maxScore_;
+
+    SDL_Quit();
 
     instance = nullptr;
 }
@@ -95,16 +100,19 @@ void Game::manageEvents(const SDL_Event& event)
         if (state_ == PLAYING)
         {
             if (!dead_)
+            {
+                audios_->play("wing");
                 bird_->step();
+            }
         }
         else if (state_ == GAMEOVER)
         {
-            state_ = BEGIN;
+            setState(BEGIN);
             bird_->reset();
         }
         else if (state_ == BEGIN)
         {
-            state_ = PLAYING;
+            setState(PLAYING);
             dead_ = false;
             resetPipes();
             bird_->toggleState();
@@ -112,6 +120,12 @@ void Game::manageEvents(const SDL_Event& event)
         break;
     default : ;
     }
+}
+
+void Game::setState(State state)
+{
+    audios_->play("swoosh");
+    state_ = state;
 }
 
 void Game::update()
@@ -128,7 +142,7 @@ void Game::update()
             if (!hasHitGround())
                 bird_->update();
             else
-                state_ = GAMEOVER;
+                setState(GAMEOVER);
             return;
         }
 
@@ -172,11 +186,18 @@ bool Game::hasHitGround()
 {
     const int baseHeight = 112;
     auto bird = bird_->getRect();
-    return bird.y + bird.h >= height_ - baseHeight;
+
+    auto ret = bird.y + bird.h >= height_ - baseHeight;
+    if (ret)
+        audios_->play("hit");
+
+    return ret;
 }
 
 void Game::dead()
 {
+    audios_->play("hit");
+    audios_->play("die");
     dead_ = true;
     if (score_ > maxScore_)
         maxScore_ = score_;
@@ -185,6 +206,7 @@ void Game::dead()
 void Game::score()
 {
     score_++;
+    audios_->play("point");
 }
 
 void Game::render()
@@ -284,6 +306,11 @@ void Game::loadAssets()
             exit(1);
 
     /* Loading audios */
+    std::vector<std::string> audios = {
+        "die", "hit", "point", "swoosh", "wing"
+    };
+    for (auto audio : audios)
+        audios_->load("./Assets/audios/" + audio + ".wav", audio);
 }
 
 void Game::createObjects()

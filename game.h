@@ -10,10 +10,18 @@ class Base;
 class Bird;
 class GameObject;
 class Background;
+class AudioManager;
 class TextureManager;
 
 class Game 
 {
+    enum State
+    {
+        BEGIN,
+        PLAYING,
+        GAMEOVER
+    };
+    
 public:
     static Game* get();
 
@@ -40,6 +48,8 @@ private:
 
     void manageEvents(const SDL_Event& event);
 
+    void setState(State state);
+
     void update();
 
     void render();
@@ -57,12 +67,6 @@ private:
     void darkenScreen();
 
 private:
-    enum State
-    {
-        BEGIN,
-        PLAYING,
-        GAMEOVER
-    };
     State state_ = BEGIN;
 
     bool running_ = true;
@@ -89,6 +93,8 @@ private:
 
     SDL_Window* window_;
     SDL_Renderer* renderer_;
+
+    AudioManager* audios_;
 
     TextureManager* textures_;
 };
