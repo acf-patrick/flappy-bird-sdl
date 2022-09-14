@@ -21,7 +21,7 @@ class Game
         PLAYING,
         GAMEOVER
     };
-    
+
 public:
     static Game* get();
 
@@ -66,8 +66,12 @@ private:
 
     void darkenScreen();
 
+    void drawScore();
+
 private:
     State state_ = BEGIN;
+
+    bool sudo_ = false;
 
     bool running_ = true;
 

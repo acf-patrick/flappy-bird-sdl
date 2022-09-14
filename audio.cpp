@@ -44,5 +44,5 @@ void AudioManager::play(const std::string& tag)
 {
     if (chunks_.find(tag) == chunks_.end())
         return;
-    Mix_PlayChannel(-1, chunks_[tag], 1);
+    Mix_PlayChannel(-1, chunks_[tag], 0);
 }

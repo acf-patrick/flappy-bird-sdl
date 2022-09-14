@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <SDL2/SDL_image.h>
 
 Game* Game::instance = nullptr;
 
@@ -30,6 +31,9 @@ Game::Game()
 
     if (SDL_CreateWindowAndRenderer(width_, height_, SDL_WINDOW_SHOWN, &window_, &renderer_) < 0)
         log("Failed to create window!");
+
+    SDL_SetWindowIcon(window_, IMG_Load("./Assets/favicon.ico"));
+
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
 
     instance = this;
@@ -41,6 +45,8 @@ Game::Game()
 
     loadAssets();
     createObjects();
+
+    loadScore();
 }
 
 Game::~Game()
@@ -52,7 +58,7 @@ Game::~Game()
     SDL_DestroyWindow(window_);
 
     std::ofstream file ("./score", std::ios::binary);
-    file << maxScore_;
+    file.write((char*)(&maxScore_), sizeof(int));
 
     SDL_Quit();
 
@@ -91,6 +97,8 @@ void Game::run()
 
 void Game::manageEvents(const SDL_Event& event)
 {
+    const Uint8* keys;
+
     switch (event.type)
     {
     case SDL_QUIT:
@@ -114,9 +122,17 @@ void Game::manageEvents(const SDL_Event& event)
         {
             setState(PLAYING);
             dead_ = false;
+            score_ = 0;
+            if (score_ > maxScore_)
+                maxScore_ = score_;
             resetPipes();
             bird_->toggleState();
         }
+        break;
+    case SDL_KEYDOWN:
+        keys = SDL_GetKeyboardState(NULL);
+        if (keys[SDL_SCANCODE_A] && keys[SDL_SCANCODE_LSHIFT] && keys[SDL_SCANCODE_LCTRL])
+            sudo_ = !sudo_;
         break;
     default : ;
     }
@@ -162,14 +178,47 @@ void Game::update()
                 lastPipeHead_ = head;
                 score();
             }
-
-            const int baseHeight = 112;
-            if (head->collide(birdRect) || hasHitGround())
-                dead();
+            
+            if (!sudo_)
+                if (head->collide(birdRect) || hasHitGround())
+                    dead();
         }
         
         createPipes();
     }
+}
+
+void Game::drawScore()
+{ 
+    int padding = 2;
+    auto drawDigits = [&](int s, SDL_Point insertion) {
+        std::vector<SDL_Texture*> digits;
+        for (int score = s; score > 0; score /= 10)
+        {
+            auto texture = textures_->retrieve(std::to_string(score % 10));
+            if (texture)
+                digits.emplace_back(texture);
+        }
+        for (int i = digits.size() - 1; i >= 0; --i)
+        {
+            auto texture = digits[i];
+            int w = 0, h = 0;
+
+            SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+            w /= 2;
+            h /= 2;
+
+            SDL_Rect dest = {
+                insertion.x, insertion.y, w, h
+            };
+            SDL_RenderCopy(renderer_, texture, NULL, &dest);
+
+            insertion.x += w + padding;
+        }
+    };
+
+    drawDigits(score_, { 10, 5 });
+    drawDigits(maxScore_, { width_ - 75, height_ - 50 });
 }
 
 void Game::resetPipes()
@@ -243,6 +292,8 @@ void Game::render()
         else if (state_ == GAMEOVER)
             renderTexture("gameover");
     }
+
+    drawScore();
 }
 
 void Game::darkenScreen()
@@ -282,7 +333,12 @@ void Game::loadScore()
 {
     std::ifstream file("./score", std::ios::binary);
     if (file)
-        file >> maxScore_;
+    {
+        int* buffer = new int;
+        file.read((char*)buffer, sizeof(int));
+        maxScore_ = *buffer;
+        delete buffer;
+    }
     else
         std::cerr << "Failed to load score!" << std::endl;
 }
